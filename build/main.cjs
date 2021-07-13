@@ -809,8 +809,8 @@ async function groth16Prove(zkeyFileName, witnessFileName, logger) {
     const buffBasesH = await binFileUtils.readSection(fdZKey, sectionsZKey, 9);
     const resH = await curve.G1.multiExpAffine(buffBasesH, buffPodd_T, logger, "multiexp H");
 
-    const r = curve.Fr.random();
-    const s = curve.Fr.random();
+    const r = curve.Fr.zero;
+    const s = curve.Fr.zero;
 
     proof.pi_a  = G1.add( proof.pi_a, zkey.vk_alpha_1 );
     proof.pi_a  = G1.add( proof.pi_a, G1.timesFr( zkey.vk_delta_1, r ));

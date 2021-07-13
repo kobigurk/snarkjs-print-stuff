@@ -5525,6 +5525,10 @@ async function groth16Prove(zkeyFileName, witnessFileName, logger) {
     if (logger) logger.debug("Reading A Points");
     const buffBasesA = await binFileUtils.readSection(fdZKey, sectionsZKey, 5);
     proof.pi_a = await curve.G1.multiExpAffine(buffBasesA, buffWitness, logger, "multiexp A");
+    console.log('a: ', stringifyBigInts$2(G1.toObject(G1.fromRprLEM(buffBasesA, G1.F.n8*0))), ffjavascript.Scalar.fromRprLE(buffWitness.slice(0*Fr.n8, 1*Fr.n8)));
+    console.log('a: ', stringifyBigInts$2(G1.toObject(G1.fromRprLEM(buffBasesA, G1.F.n8*2))), ffjavascript.Scalar.fromRprLE(buffWitness.slice(1*Fr.n8, 2*Fr.n8)));
+    console.log('a: ', stringifyBigInts$2(G1.toObject(G1.fromRprLEM(buffBasesA, G1.F.n8*4))), ffjavascript.Scalar.fromRprLE(buffWitness.slice(2*Fr.n8, 3*Fr.n8)));
+    console.log('a: ', stringifyBigInts$2(G1.toObject(G1.fromRprLEM(buffBasesA, G1.F.n8*6))), ffjavascript.Scalar.fromRprLE(buffWitness.slice(3*Fr.n8, 4*Fr.n8)));
 
     if (logger) logger.debug("Reading B1 Points");
     const buffBasesB1 = await binFileUtils.readSection(fdZKey, sectionsZKey, 6);
@@ -5533,6 +5537,7 @@ async function groth16Prove(zkeyFileName, witnessFileName, logger) {
     if (logger) logger.debug("Reading B2 Points");
     const buffBasesB2 = await binFileUtils.readSection(fdZKey, sectionsZKey, 7);
     proof.pi_b = await curve.G2.multiExpAffine(buffBasesB2, buffWitness, logger, "multiexp B2");
+    console.log('b: ', stringifyBigInts$2(G2.toObject(G2.fromRprLEM(buffBasesB2))));
 
     if (logger) logger.debug("Reading C Points");
     const buffBasesC = await binFileUtils.readSection(fdZKey, sectionsZKey, 8);
@@ -5541,25 +5546,33 @@ async function groth16Prove(zkeyFileName, witnessFileName, logger) {
     if (logger) logger.debug("Reading H Points");
     const buffBasesH = await binFileUtils.readSection(fdZKey, sectionsZKey, 9);
     const resH = await curve.G1.multiExpAffine(buffBasesH, buffPodd_T, logger, "multiexp H");
+    let test = [G1.toObject(G1.toAffine(resH))];
+    test = stringifyBigInts$2(test);
+    console.log(test);
 
-    const r = curve.Fr.random();
-    const s = curve.Fr.random();
+    const r = curve.Fr.zero;
+    const s = curve.Fr.zero; 
+    console.log('hehe');
 
+    console.log('aa: ', G1.toString(proof.pi_a, 16));
+    console.log('ar: ', stringifyBigInts$2(G1.toObject(G1.fromRprLEM(proof.pi_a))));
     proof.pi_a  = G1.add( proof.pi_a, zkey.vk_alpha_1 );
+    console.log('vk: ', stringifyBigInts$2(G1.toObject(zkey.vk_alpha_1)));
+    console.log('aa: ', stringifyBigInts$2(G1.toObject(G1.toAffine(proof.pi_a))));
     proof.pi_a  = G1.add( proof.pi_a, G1.timesFr( zkey.vk_delta_1, r ));
 
     proof.pi_b  = G2.add( proof.pi_b, zkey.vk_beta_2 );
-    proof.pi_b  = G2.add( proof.pi_b, G2.timesFr( zkey.vk_delta_2, s ));
+    //proof.pi_b  = G2.add( proof.pi_b, G2.timesFr( zkey.vk_delta_2, s ));
 
     pib1 = G1.add( pib1, zkey.vk_beta_1 );
-    pib1 = G1.add( pib1, G1.timesFr( zkey.vk_delta_1, s ));
+    //pib1 = G1.add( pib1, G1.timesFr( zkey.vk_delta_1, s ));
 
     proof.pi_c = G1.add(proof.pi_c, resH);
 
 
-    proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( proof.pi_a, s ));
-    proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( pib1, r ));
-    proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( zkey.vk_delta_1, Fr.neg(Fr.mul(r,s) )));
+    //proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( proof.pi_a, s ));
+    //proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( pib1, r ));
+    //proof.pi_c  = G1.add( proof.pi_c, G1.timesFr( zkey.vk_delta_1, Fr.neg(Fr.mul(r,s) )));
 
 
     let publicSignals = [];
